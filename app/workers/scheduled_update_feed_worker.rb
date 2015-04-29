@@ -1,6 +1,9 @@
 require 'subscriptions_manager'
 require 'schedule_manager'
 
+# TODO remove profiling code
+require 'ruby-prof'
+
 ##
 # Background job for scheduled updates to a feed.
 #
@@ -23,6 +26,10 @@ class ScheduledUpdateFeedWorker
   # This method is intended to be invoked from Sidekiq, which means it is performed in the background.
 
   def perform(feed_id)
+    # TODO remove profiling code
+    RubyProf.measure_mode = RubyProf::CPU_TIME
+    RubyProf.start
+
     # Check that feed actually exists
     if !Feed.exists? feed_id
       Rails.logger.warn "Feed #{feed_id} scheduled to be updated, but it does not exist in the database. Unscheduling further updates."
@@ -120,5 +127,11 @@ class ScheduledUpdateFeedWorker
         SubscriptionsManager.recalculate_unread_count feed, user
       end
     end
+
+    # TODO remove profiling code
+    result = RubyProf.stop
+    result.eliminate_methods! [/<Module::RestClient>#get/, /<Class::RestClient::Request>#execute/]
+    printer = RubyProf::MultiPrinter.new result
+    printer.print path: './profiling', profile: 'profile'
   end
 end
