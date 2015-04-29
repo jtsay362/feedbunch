@@ -27,8 +27,7 @@ class ScheduledUpdateFeedWorker
 
   def perform(feed_id)
     # TODO remove profiling code
-    RubyProf.measure_mode = RubyProf::CPU_TIME
-    RubyProf.start
+    #RubyProf.start
 
     # Check that feed actually exists
     if !Feed.exists? feed_id
@@ -129,9 +128,9 @@ class ScheduledUpdateFeedWorker
     end
 
     # TODO remove profiling code
-    result = RubyProf.stop
-    result.eliminate_methods! [/<Module::RestClient>#get/, /<Class::RestClient::Request>#execute/]
-    printer = RubyProf::MultiPrinter.new result
-    printer.print path: './profiling', profile: 'profile'
+    # result = RubyProf.stop
+    # result.eliminate_methods! [/<Module::RestClient>#get/, /<Class::RestClient::Request>#execute/]
+    # printer = RubyProf::MultiPrinter.new result
+    # printer.print path: './profiling', profile: 'profile'
   end
 end
